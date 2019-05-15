@@ -5,7 +5,7 @@
 %       *transition checked using Cebeci and Smith (1974) method
 %           which is an improvement of Michel's method
 
-classdef boundaryLayerC
+classdef boundaryLayerc
     methods(Static)
         function [deltas, thetas, cf, trans, sp] = main(Ue, xp, yp, c, nu)
             %% Initialization
