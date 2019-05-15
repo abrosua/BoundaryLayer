@@ -76,8 +76,9 @@ end
 
 %% Post-Processing
 % Plot error iteration
-figure; grid on
-plot(num_iter, err_iter, 'ro-', 'linewidth', 2);
+figure;
+plot(num_iter, err_iter, 'ro-', 'linewidth', 2); grid on
+axis([num_iter(1), num_iter(end), 0, 20]);
 xlabel('Number of iteration'); ylabel('Total error [%]');
 title('Error convergence');
 
