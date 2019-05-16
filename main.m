@@ -86,4 +86,4 @@ title('Error convergence');
 cp(1) = 1; cp(end) = 1;
 vtan(1) = 0; vtan(end) = 0;
 % Calculate cl, cd and plot some graphs.
-[cl, cd] = postPro(m, alpha, stag, [nan nan], sp, vtan, x, y, cp, cf, deltas);
+[cl, cd] = postPro(m, alpha, stag, trans, sp, vtan, x, y, cp, cf, deltas);
