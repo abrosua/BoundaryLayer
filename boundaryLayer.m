@@ -46,12 +46,12 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
         
         % Checking TRANSITION POINT
         LHS = abs(Ue(i))*thetas(i)/nu;
-        k = abs(Ue(i))*xt/nu;
-        %RHS = 2.9*(k^0.4); % Michel (1952)
-        RHS = 1.174*(1 + (22400/k))*(k^0.46); % Cebeci and Smith (1974)
+        Rex = abs(Ue(i))*xt/nu;
+        %RHS = 2.9*(Rex^0.4); % Michel (1952)
+        RHS = 1.174*(1 + (22400/Rex))*(Rex^0.46); % Cebeci and Smith (1974)
         temp = abs(LHS - RHS);
         if isnan(trans*i) % Assign the index for transition point!
-            if temp < eps
+            if temp < eps || LHS >= RHS
                 trans = i;
             end
         end
@@ -81,7 +81,6 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
         end
     end
     
-    deltas = H.*thetas;
     cf = 2*nu*L./(Ue.*thetas);
     cf(thetas == 0) = 0;
     
@@ -90,16 +89,50 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
     % Initialization
     kapa = 0.41; B = 5.0;  % Coles & Hirst (1968)
     a = @(PI) (2 + 3.179*PI + 1.5*PI^2)/(kapa*(1 + PI));    % eqn. 6-119a
-    Re_theta = @(PI, lambd, H) (1 + PI)*exp(kapa*lambd - kapa*B - 2*PI)/...
+    Re_t = @(PI, lambd, H) (1 + PI)*exp(kapa*lambd - kapa*B - 2*PI)/...
         (kapa*H);   % eqn. 6-119b
+    beta = @(PI) -0.4 + 0.76*PI + 0.42*PI^2;
+    
+    for i = trans+1:M
+        PI = 0.43;
+        cf0 = cf(i-1); temp = 1;
+        lam = sqrt(2/cf0);
+        while temp > eps
+            Ht = lam/(lam - a(PI));
+            cft = 0.3*exp(-1.33*Ht)/...
+                (log10(Re_t(PI,lam,Ht))^(1.74 + 0.31*Ht));
+            thetat = rungeKutta(thetas(i-1), xp(i-1), xp(i), cft, Ht,...
+                Ue(i), dUe(i));
+            
+            % Iterator
+            lam = sqrt(2/cft);
+            betat = - Ht*thetat*dUe(i)*(lam^2)/Ue(i);
+            lam = lam + 0.1;
+            %PIt = fzero(@(p) beta(p)-betat, PI); PI = PIt;
+            temp = abs(cft - cf0); cf0 = cft;
+        end
+        
+        %lambda(i) = lam;
+        %H(i) = Ht;
+        if thetat == inf || isnan(thetat)
+            thetas(i) = thetas(i-1);
+        else
+            thetas(i) = thetat;
+        end
+        cf(i) = cft;
+    end
+    
+    %% RESULTS
+    deltas = H.*thetas;
     
     %% Separation point evaluation
-    for i = 1:M
-        if lambda(i) <= -0.09
-            sp = i;
-            break
-        else
-            sp = M;
-        end
-    end
+    sp = M;
+%     for i = 1:M
+%         if lambda(i) <= -0.09
+%             sp = i;
+%             break
+%         else
+%             sp = M;
+%         end
+%     end
 end
