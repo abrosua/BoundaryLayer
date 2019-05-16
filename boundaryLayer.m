@@ -9,7 +9,7 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
     (Ue, xp, yp, c, nu)
     %% Initialization
     % Momentum thickness calculation
-    eps = 1e-05; trans = nan;
+    eps = 1e-05; trans = nan; sp = nan;
     M = length(xp);
     thetas = zeros(M, 1);
     
@@ -116,6 +116,9 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
         %H(i) = Ht;
         if thetat == inf || isnan(thetat)
             thetas(i) = thetas(i-1);
+            if isnan(i*sp)
+                sp = i;
+            end
         else
             thetas(i) = thetat;
         end
@@ -126,7 +129,6 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
     deltas = H.*thetas;
     
     %% Separation point evaluation
-    sp = M;
 %     for i = 1:M
 %         if lambda(i) <= -0.09
 %             sp = i;
