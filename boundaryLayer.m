@@ -92,6 +92,7 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
     Re_t = @(PI, lambd, H) (1 + PI)*exp(kapa*lambd - kapa*B - 2*PI)/...
         (kapa*H);   % eqn. 6-119b
     beta = @(PI) -0.4 + 0.76*PI + 0.42*PI^2;
+    e = 1.;
     
     for i = trans+1:M
         PI = 0.43;
@@ -101,8 +102,8 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
             Ht = lam/(lam - a(PI));
             cft = 0.3*exp(-1.33*Ht)/...
                 (log10(Re_t(PI,lam,Ht))^(1.74 + 0.31*Ht));
-            thetat = rungeKutta(thetas(i-1), xp(i-1), xp(i), cft, Ht,...
-                Ue(i), dUe(i));
+            thetat = rungeKutta(thetas(i-1), xp(i-1), xp(i),...
+                cft, Ht, Ue(i), dUe(i));
             
             % Iterator
             lam = sqrt(2/cft);
@@ -120,9 +121,9 @@ function [deltas, thetas, cf, trans, sp] = boundaryLayer...
                 sp = i;
             end
         else
-            thetas(i) = thetat;
+            thetas(i) = e*thetat;
         end
-        cf(i) = cft;
+        cf(i) = e*cft;
     end
     
     %% RESULTS

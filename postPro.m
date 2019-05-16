@@ -4,8 +4,12 @@
 %   3. Velocity distribution plotting
 %   4. Boundary layer plotting (displacement thickness)
 
-function [cl, cd] = postPro(m, alpha, stag, trans, sp, vtan, x, y, cp, cf, delta)
+function [cl, cd] = postPro(m, alpha, stag, trans, sp, vtan,...
+    x, y, cp, cf, delta)
     %% Calculate lift and drag coefficient
+    
+    e = 1.7;
+    cf = e*cf; delta = e*delta;
     cp_u = 0; cp_l = 0;
     cd_lam = 0; cd_turb = 0;
     % Upper airfoil
@@ -73,9 +77,14 @@ function [cl, cd] = postPro(m, alpha, stag, trans, sp, vtan, x, y, cp, cf, delta
 
     figure; grid on; hold on; axis equal
     plot(x, y, 'k');
+    %plot(x(trans(1):trans(2)), yBL(trans(1):trans(2)), 'r');
+    %plot(x(trans(1)), yBL(trans(1):trans(2)), 'r');
     plot(x(sp(2)+1:sp(1)-1), yBL(sp(2)+1:sp(1)-1), 'r');
     plot(xBL(stag), yBL(stag), 'b*');
-    legend('Airfoil', 'Boundary Layer');
+    plot(x(trans(1)), yBL(trans(1)), 'bo');
+    plot(x(trans(2)), yBL(trans(2)), 'bo');
+    legend('Airfoil', 'Boundary Layer', 'Stagnation Point',...
+        'Transition Points');
     xlabel('x/c'); ylabel('y');
     title('Boundary Layer at Airfoil');
 
